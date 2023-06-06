@@ -5,6 +5,7 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "pytest_ignore_test_results"
 authors = [{name = "Fu Hanxi", email = "fuhanxi@espressif.com"}]
+readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
