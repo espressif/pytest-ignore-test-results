@@ -34,7 +34,6 @@ profile = 'black'
 [tool.black]
 line-length = 120
 target-version = ['py37']
-force-exclude = '/tests/'
 skip-string-normalization = true
 
 [tool.ruff]
@@ -88,3 +87,6 @@ select = [
 ]
 line-length = 120
 target-version = "py37"
+
+[tool.pytest.ini_options]
+addopts = "-s"
