@@ -11,7 +11,7 @@ from _pytest.reports import BaseReport, TestReport
 from _pytest.stash import StashKey
 from _pytest.terminal import TerminalReporter
 
-from pytest_ignore_test_results.utils import ExitCode, parse_ignore_results_files
+from .utils import ExitCode, parse_ignore_results_files
 
 if t.TYPE_CHECKING:
     from typing import Literal
