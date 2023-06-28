@@ -72,3 +72,37 @@ def test_ignored_exitcode(pytester):
         '--strict-exit-code',
     )
     assert result.ret == ExitCode.ONLY_IGNORE_RESULT_CASES_FAILED
+
+
+def test_ignore_child_cases(pytester):
+    pytester.makeconftest(
+        """
+from pytest_ignore_test_results.ignore_results import ChildCase, ChildCasesStashKey
+
+def pytest_runtest_makereport(item, call):
+    if call.when == 'call':
+        item.config.stash[ChildCasesStashKey] = {
+            item.nodeid: [
+                ChildCase('child_case_1', 'passed'),
+                ChildCase('child_case_2', 'failed')
+            ]
+        }
+"""
+    )
+
+    result = pytester.runpytest(
+        '-vv',
+        '-k',
+        'test_failed_2',
+    )
+    assert result.ret == 1
+    assert_outcomes(result.parseoutcomes(), failed=1, passed=0, skipped=0, xfailed=0, ignored=0, deselected=7)
+
+    result = pytester.runpytest(
+        '-vv',
+        '-k',
+        'test_failed_2',
+        '--ignore-result-cases',
+        'child_case_2',
+    )
+    assert_outcomes(result.parseoutcomes(), failed=0, passed=0, skipped=0, xfailed=0, ignored=1, deselected=7)
