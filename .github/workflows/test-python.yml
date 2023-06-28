@@ -8,7 +8,20 @@ on:
       - "*.py"
 
 jobs:
-  test-python:
+  test-build:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.7'
+      - run: |
+          pip install -U pip
+          pip install flit
+          flit build
+
+  test-package:
     timeout-minutes: 10
     runs-on: ubuntu-latest
     strategy:
