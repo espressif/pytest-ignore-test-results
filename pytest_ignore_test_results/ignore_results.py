@@ -96,35 +96,38 @@ class IgnoreTestResultsPlugin:
         if not report.failed:
             return
 
+        main_case_name = getattr(report, 'custom_test_case_name', report.nodeid)
+        main_case_ignored = self.is_ignored_result_case(report.nodeid)
         if report.when in ['setup', 'teardown']:
             # setup and teardown failures we only record them
-            custom_test_case_name = getattr(report, 'custom_test_case_name', report.nodeid)
-            self._failed_test_cases[custom_test_case_name] = self.is_ignored_result_case(custom_test_case_name)
+            self._failed_test_cases[main_case_name] = main_case_ignored
             return
 
         child_cases = self.config.stash[ChildCasesStashKey].get(report.nodeid, [])
         if not child_cases:
             # no child cases, we use the test case itself
-            custom_test_case_name = getattr(report, 'custom_test_case_name', report.nodeid)
-            self._failed_test_cases[custom_test_case_name] = self.is_ignored_result_case(custom_test_case_name)
-            if self._failed_test_cases[custom_test_case_name]:
+            self._failed_test_cases[main_case_name] = main_case_ignored
+            if main_case_ignored:
                 return 'ignored', 'I', 'IGNORED'
         else:
             # there are child cases, we use child cases instead
-            has_failed = False
-            has_ignored = False
+            # if the main case is ignored, we ignore all child cases as well
+            failed_child_cases = []
+            ignored_child_cases = []
             for child_case in child_cases:
                 if child_case.result == 'failed':
-                    has_failed = True
-                    self._failed_test_cases[child_case.name] = self.is_ignored_result_case(child_case.name)
-                    if self._failed_test_cases[child_case.name]:
-                        has_ignored = True
+                    child_case_ignored = main_case_ignored or self.is_ignored_result_case(child_case.name)
+                    self._failed_test_cases[child_case.name] = child_case_ignored
+                    if child_case_ignored:
+                        ignored_child_cases.append(child_case.name)
+                    else:
+                        failed_child_cases.append(child_case.name)
 
-            if has_failed:
-                if has_ignored:
-                    return 'ignored', 'I', 'IGNORED CHILD CASES'
-                else:
-                    return 'failed', 'F', 'FAILED CHILD CASES'
+            if failed_child_cases:
+                return 'failed', 'F', 'FAILED CHILD CASES'
+
+            if ignored_child_cases:
+                return 'ignored', 'I', 'IGNORED CHILD CASES'
 
     def pytest_terminal_summary(self, terminalreporter: TerminalReporter) -> None:
         if self.ignored_result_cases:
