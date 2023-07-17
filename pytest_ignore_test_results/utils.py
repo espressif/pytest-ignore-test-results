@@ -74,5 +74,5 @@ class ExitCode(enum.IntEnum):
     USAGE_ERROR = 4
     #: pytest couldn't find tests.
     NO_TESTS_COLLECTED = 5
-    #: Only ignore result cases failed, and the
+    #: Only ignore result cases failed, and the `--strict-exit-code` flag is set.
     ONLY_IGNORE_RESULT_CASES_FAILED = 6
