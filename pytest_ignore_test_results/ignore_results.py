@@ -134,6 +134,13 @@ class IgnoreTestResultsPlugin:
             terminalreporter.section('Ignored Result Cases', bold=True, yellow=True)
             terminalreporter.line('\n'.join(self.ignored_result_cases))
 
+        if self.failed_cases:
+            terminalreporter.section('Failed Cases', bold=True, red=True)
+            terminalreporter.section(
+                'you can use --ignore-result-files or --ignore-result-cases to ignore them', bold=True, red=True
+            )
+            terminalreporter.line('\n'.join(self.failed_cases))
+
     def pytest_sessionfinish(self, session):
         if self.failed_cases:
             session.exitstatus = ExitCode.TESTS_FAILED
