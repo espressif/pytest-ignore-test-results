@@ -48,6 +48,7 @@ def parse_ignore_results_files(
     patterns = set()
 
     for f in files:
+        f = os.path.realpath(os.path.expanduser(os.path.expandvars(f)))
         if not os.path.isfile(f):
             continue
         patterns.update(parse_ignore_results_file(f))
