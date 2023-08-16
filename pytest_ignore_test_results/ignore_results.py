@@ -97,7 +97,7 @@ class IgnoreTestResultsPlugin:
             return
 
         main_case_name = getattr(report, 'custom_test_case_name', report.nodeid)
-        main_case_ignored = self.is_ignored_result_case(report.nodeid)
+        main_case_ignored = self.is_ignored_result_case(main_case_name)
         if report.when in ['setup', 'teardown']:
             # setup and teardown failures we only record them
             self._failed_test_cases[main_case_name] = main_case_ignored
