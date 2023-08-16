@@ -1,3 +1,14 @@
+## v0.2.1 (2023-08-16)
+
+### Feat
+
+- print failed case names
+
+### Fix
+
+- expand user and variables in the file path
+- use hook name instead of nodeid while ignoring
+
 ## v0.2.0 (2023-07-17)
 
 ### Feat
