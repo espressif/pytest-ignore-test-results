@@ -1,3 +1,9 @@
+## v0.2.2 (2023-08-17)
+
+### Fix
+
+- stop implementing hook `pytest_custom_test_case_name` by default
+
 ## v0.2.1 (2023-08-16)
 
 ### Feat

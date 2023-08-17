@@ -44,7 +44,7 @@ pytest_ignore_test_results = "pytest_ignore_test_results.plugin"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.2.1"
+version = "0.2.2"
 tag_format = "v$version"
 version_files = [
     "pytest_ignore_test_results/__init__.py",
