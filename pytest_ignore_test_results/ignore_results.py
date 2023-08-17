@@ -75,14 +75,11 @@ class IgnoreTestResultsPlugin:
                 return True
         return False
 
-    def pytest_custom_test_case_name(self, item: Function) -> str:
-        return item.nodeid
-
     @pytest.hookimpl(hookwrapper=True, trylast=True)
     def pytest_runtest_makereport(self, item: Function) -> BaseReport:
         outcome = yield
         rep = outcome.get_result()
-        rep.custom_test_case_name = self.config.hook.pytest_custom_test_case_name(item=item)
+        rep.custom_test_case_name = self.config.hook.pytest_custom_test_case_name(item=item) or item.nodeid
 
     def pytest_report_teststatus(self, report: TestReport) -> t.Optional[t.Tuple[str, str, str]]:
         """
