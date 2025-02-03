@@ -1,3 +1,9 @@
+## v0.3.0 (2025-02-03)
+
+### Feat
+
+- support --ignore-no-tests-collected
+
 ## v0.2.2 (2023-08-17)
 
 ### Fix
