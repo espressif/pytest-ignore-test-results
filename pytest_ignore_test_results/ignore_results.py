@@ -1,20 +1,41 @@
-# SPDX-FileCopyrightText: 2023 Espressif Systems (Shanghai) CO LTD
+# SPDX-FileCopyrightText: 2023-2025 Espressif Systems (Shanghai) CO LTD
 # SPDX-License-Identifier: Apache-2.0
-
+import logging
 import typing as t
-from fnmatch import fnmatch
+from fnmatch import (
+    fnmatch,
+)
 
 import pytest
-from _pytest.config import Config
-from _pytest.python import Function
-from _pytest.reports import BaseReport, TestReport
-from _pytest.stash import StashKey
-from _pytest.terminal import TerminalReporter
+from _pytest.config import (
+    Config,
+)
+from _pytest.main import (
+    Session,
+)
+from _pytest.python import (
+    Function,
+)
+from _pytest.reports import (
+    BaseReport,
+    TestReport,
+)
+from _pytest.stash import (
+    StashKey,
+)
+from _pytest.terminal import (
+    TerminalReporter,
+)
 
-from .utils import ExitCode, parse_ignore_results_files
+from .utils import (
+    ExitCode,
+    parse_ignore_results_files,
+)
 
 if t.TYPE_CHECKING:
-    from typing import Literal
+    from typing import (
+        Literal,
+    )
 
 
 class ChildCase:
@@ -40,6 +61,7 @@ class IgnoreTestResultsPlugin:
         ignore_cases: t.Optional[t.List[str]] = None,
         ignore_files: t.Optional[t.List[str]] = None,
         strict_exit_code: bool = False,
+        ignore_no_tests_collected_error: bool = False,
     ):
         self.config = config
         self.config.stash.setdefault(ChildCasesStashKey, {})
@@ -47,6 +69,7 @@ class IgnoreTestResultsPlugin:
         self.ignore_result_patterns = set(ignore_cases or [])
         self.ignore_result_patterns.update(parse_ignore_results_files(ignore_files or []))
         self.strict_exit_code = strict_exit_code
+        self.ignore_no_tests_collected_error = ignore_no_tests_collected_error
 
         # record the test cases, since in each test case, there may be child cases as well
         self._failed_test_cases: t.Dict[str, bool] = {}  # nodeid, is_result_ignored
@@ -138,7 +161,12 @@ class IgnoreTestResultsPlugin:
             )
             terminalreporter.line('\n'.join(self.failed_cases))
 
-    def pytest_sessionfinish(self, session):
+    def pytest_sessionfinish(self, session: Session, exitstatus: int) -> None:
+        if exitstatus == ExitCode.NO_TESTS_COLLECTED and self.ignore_no_tests_collected_error:
+            logging.debug('Ignoring the error if no tests are collected')
+            session.exitstatus = ExitCode.OK
+            return
+
         if self.failed_cases:
             session.exitstatus = ExitCode.TESTS_FAILED
         elif self.ignored_result_cases:  # only ignored test cases are failed

@@ -1,11 +1,15 @@
-# SPDX-FileCopyrightText: 2023 Espressif Systems (Shanghai) CO LTD
+# SPDX-FileCopyrightText: 2023-2025 Espressif Systems (Shanghai) CO LTD
 # SPDX-License-Identifier: Apache-2.0
 
 import re
 
-from conftest import assert_outcomes
+from conftest import (
+    assert_outcomes,
+)
 
-from pytest_ignore_test_results.utils import ExitCode
+from pytest_ignore_test_results.utils import (
+    ExitCode,
+)
 
 
 def test_basic_script(pytester):
@@ -140,3 +144,18 @@ def pytest_runtest_makereport(item, call):
         'test_script.py::test_failed_2',
     )
     assert_outcomes(result.parseoutcomes(), failed=0, passed=0, skipped=0, xfailed=0, ignored=1, deselected=7)
+
+
+def test_ignore_no_collect_error(pytester):
+    result = pytester.runpytest(
+        '-k',
+        'not_exists',
+    )
+    assert result.ret == ExitCode.NO_TESTS_COLLECTED
+
+    result = pytester.runpytest(
+        '-k',
+        'not_exists',
+        '--ignore-no-tests-collected-error',
+    )
+    assert result.ret == ExitCode.OK
