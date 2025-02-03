@@ -10,13 +10,15 @@ license = {file = "LICENSE"}
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Framework :: Pytest",
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dynamic = ["version", "description"]
 requires-python = ">=3.7"
@@ -38,6 +40,11 @@ doc = [
     "myst-parser",              # markdown support
     "sphinxcontrib-mermaid",    # mermaid graph support
 ]
+
+[project.urls]
+Homepage = "https://github.com/espressif/pytest-ignore-test-results"
+Repository = "https://github.com/espressif/pytest-ignore-test-results.git"
+Changelog = "https://github.com/espressif/pytest-ignore-test-results/blob/main/CHANGELOG.md"
 
 [project.entry-points."pytest11"]
 pytest_ignore_test_results = "pytest_ignore_test_results.plugin"
