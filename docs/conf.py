@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2023 Espressif Systems (Shanghai) CO LTD
+# SPDX-FileCopyrightText: 2023-2025 Espressif Systems (Shanghai) CO LTD
 # SPDX-License-Identifier: Apache-2.0
 
 # Configuration file for the Sphinx documentation builder.
@@ -11,7 +11,7 @@
 
 project = 'pytest-ignore-test-results'
 project_homepage = 'https://github.com/espressif/pytest-ignore-test-results'
-copyright = '2023, Espressif Systems (Shanghai) Co., Ltd.'
+copyright = '2023, Espressif Systems (Shanghai) Co., Ltd.'  # noqa
 author = 'Fu Hanxi'
 
 # -- General configuration ---------------------------------------------------
