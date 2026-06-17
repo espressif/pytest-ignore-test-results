@@ -1,19 +1,14 @@
 # SPDX-FileCopyrightText: 2023-2025 Espressif Systems (Shanghai) CO LTD
 # SPDX-License-Identifier: Apache-2.0
 
-from _pytest.config import (
-    Config,
-)
-from _pytest.stash import (
-    StashKey,
-)
+import pytest
 
 from .ignore_results import (
     IgnoreTestResultsPlugin,
 )
 
 
-def pytest_addoption(parser):
+def pytest_addoption(parser: pytest.Parser):
     group = parser.getgroup('pytest_ignore_test_results')
     group.addoption(
         '--ignore-result-cases',
@@ -37,7 +32,7 @@ def pytest_addoption(parser):
     )
 
 
-ignore_result_key = StashKey[IgnoreTestResultsPlugin]()
+ignore_result_key = pytest.StashKey[IgnoreTestResultsPlugin]()
 
 
 def pytest_addhooks(pluginmanager):
@@ -48,7 +43,7 @@ def pytest_addhooks(pluginmanager):
     pluginmanager.add_hookspecs(hooks)
 
 
-def pytest_configure(config: Config) -> None:
+def pytest_configure(config: pytest.Config) -> None:
     config.stash[ignore_result_key] = IgnoreTestResultsPlugin(
         config,
         ignore_cases=config.getoption('ignore_result_cases'),
@@ -60,7 +55,7 @@ def pytest_configure(config: Config) -> None:
     config.pluginmanager.register(config.stash[ignore_result_key])
 
 
-def pytest_unconfigure(config: Config) -> None:
+def pytest_unconfigure(config: pytest.Config) -> None:
     plugin = config.stash.get(ignore_result_key, None)
     if plugin:
         del config.stash[ignore_result_key]

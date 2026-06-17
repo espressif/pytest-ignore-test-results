@@ -7,21 +7,8 @@ from fnmatch import (
 )
 
 import pytest
-from _pytest.config import (
-    Config,
-)
-from _pytest.main import (
-    Session,
-)
-from _pytest.python import (
-    Function,
-)
 from _pytest.reports import (
     BaseReport,
-    TestReport,
-)
-from _pytest.stash import (
-    StashKey,
 )
 from _pytest.terminal import (
     TerminalReporter,
@@ -50,13 +37,13 @@ class ChildCase:
 
 # config stash
 # {nodeid: list[ChildCase]}
-ChildCasesStashKey = StashKey[t.Dict[str, t.List[ChildCase]]]()
+ChildCasesStashKey = pytest.StashKey[t.Dict[str, t.List[ChildCase]]]()
 
 
 class IgnoreTestResultsPlugin:
     def __init__(
         self,
-        config: Config,
+        config: pytest.Config,
         *,
         ignore_cases: t.Optional[t.List[str]] = None,
         ignore_files: t.Optional[t.List[str]] = None,
@@ -99,12 +86,12 @@ class IgnoreTestResultsPlugin:
         return False
 
     @pytest.hookimpl(hookwrapper=True, trylast=True)
-    def pytest_runtest_makereport(self, item: Function) -> BaseReport:
+    def pytest_runtest_makereport(self, item: pytest.Function) -> BaseReport:
         outcome = yield
         rep = outcome.get_result()
         rep.custom_test_case_name = self.config.hook.pytest_custom_test_case_name(item=item) or item.nodeid
 
-    def pytest_report_teststatus(self, report: TestReport) -> t.Optional[t.Tuple[str, str, str]]:
+    def pytest_report_teststatus(self, report: pytest.TestReport) -> t.Optional[t.Tuple[str, str, str]]:
         """
         Check if the test case is ignored or not. If there are child cases, check them instead. The result of the test
         case itself will be ignored.
@@ -161,7 +148,7 @@ class IgnoreTestResultsPlugin:
             )
             terminalreporter.line('\n'.join(self.failed_cases))
 
-    def pytest_sessionfinish(self, session: Session, exitstatus: int) -> None:
+    def pytest_sessionfinish(self, session: pytest.Session, exitstatus: int) -> None:
         if exitstatus == ExitCode.NO_TESTS_COLLECTED and self.ignore_no_tests_collected_error:
             logging.debug('Ignoring the error if no tests are collected')
             session.exitstatus = ExitCode.OK
