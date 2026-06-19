@@ -1,0 +1,39 @@
+name: Test Linux (py3.14)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    paths:
+      - "**/*.py"
+
+jobs:
+  test:
+    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+    container:
+      image: python:3.14
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest
+      - name: Test with pytest
+        run: |
+          pytest --junitxml pytest.xml tests/ | tee pytest-coverage.txt
+      - name: Save PR number
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          echo ${{ github.event.number }} > pr_number.txt
+      - name: Upload test results
+        uses: actions/upload-artifact@v7
+        if: always() # always run even if the previous step fails
+        with:
+          name: test-results
+          path: |
+            pr_number.txt
+            pytest-coverage.txt
+            pytest.xml
+          retention-days: 1
