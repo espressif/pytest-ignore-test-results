@@ -1,6 +1,6 @@
-# SPDX-FileCopyrightText: 2023-2025 Espressif Systems (Shanghai) CO LTD
+# SPDX-FileCopyrightText: 2023-2026 Espressif Systems (Shanghai) CO LTD
 # SPDX-License-Identifier: Apache-2.0
 
 """A pytest plugin to ignore test results."""
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
