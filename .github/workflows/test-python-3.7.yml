@@ -1,0 +1,25 @@
+name: Test Linux (py3.7)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    paths:
+      - "**/*.py"
+
+jobs:
+  test:
+    timeout-minutes: 10
+    runs-on: ubuntu-22.04
+    container:
+      image: python:3.7
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest
+      - name: Test with pytest
+        run: |
+          pytest

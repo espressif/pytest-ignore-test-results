@@ -1,0 +1,22 @@
+name: Test Build Python Packages
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    paths:
+      - "**/*.py"
+
+jobs:
+  test-build:
+    timeout-minutes: 10
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.7"
+      - run: |
+          pip install -U pip
+          pip install flit
+          flit build
