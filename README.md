@@ -14,6 +14,7 @@ pip install -U pytest-ignore-test-results
 - Load ignore patterns from files
 - Custom exit codes for different failure scenarios
 - Support for child test cases
+- Mark ignored JUnit failures and errors with `is_ignored="1"`
 - Option to ignore "no tests collected" errors
 
 ## Usage
