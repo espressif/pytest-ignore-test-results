@@ -2,11 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import typing as t
+import xml.etree.ElementTree as ET
 from fnmatch import (
     fnmatch,
 )
 
 import pytest
+from _pytest.junitxml import (
+    mangle_test_address,
+)
 from _pytest.reports import (
     BaseReport,
 )
@@ -60,6 +64,7 @@ class IgnoreTestResultsPlugin:
 
         # record the test cases, since in each test case, there may be child cases as well
         self._failed_test_cases: t.Dict[str, bool] = {}  # nodeid, is_result_ignored
+        self._ignored_junit_addresses: t.Set[t.Tuple[str, str]] = set()
 
     @property
     def failed_cases(self) -> t.List[str]:
@@ -85,6 +90,35 @@ class IgnoreTestResultsPlugin:
                 return True
         return False
 
+    def _record_ignored_junit_address(self, nodeid: str) -> None:
+        address = mangle_test_address(nodeid)
+        self._ignored_junit_addresses.add(('.'.join(address[:-1]), address[-1]))
+
+    def mark_ignored_results_in_junit(self) -> None:
+        junit_path = self.config.option.xmlpath
+        if not junit_path or not (self.ignored_result_cases or self._ignored_junit_addresses):
+            return
+
+        try:
+            tree = ET.parse(junit_path)
+        except FileNotFoundError:
+            return
+
+        ignored_names = set(self.ignored_result_cases)
+        changed = False
+        for testcase in tree.findall('.//testcase'):
+            name = testcase.get('name', '')
+            address = (testcase.get('classname', ''), name)
+            if name not in ignored_names and address not in self._ignored_junit_addresses:
+                continue
+            if testcase.find('failure') is None and testcase.find('error') is None:
+                continue
+            testcase.set('is_ignored', '1')
+            changed = True
+
+        if changed:
+            tree.write(junit_path, encoding='utf-8', xml_declaration=True)
+
     @pytest.hookimpl(hookwrapper=True, trylast=True)
     def pytest_runtest_makereport(self, item: pytest.Function) -> BaseReport:
         outcome = yield
@@ -108,6 +142,8 @@ class IgnoreTestResultsPlugin:
         if report.when in ['setup', 'teardown']:
             # setup and teardown failures we only record them
             self._failed_test_cases[main_case_name] = main_case_ignored
+            if main_case_ignored:
+                self._record_ignored_junit_address(report.nodeid)
             return
 
         child_cases = self.config.stash[ChildCasesStashKey].get(report.nodeid, [])
@@ -115,6 +151,7 @@ class IgnoreTestResultsPlugin:
             # no child cases, we use the test case itself
             self._failed_test_cases[main_case_name] = main_case_ignored
             if main_case_ignored:
+                self._record_ignored_junit_address(report.nodeid)
                 return 'ignored', 'I', 'IGNORED'
         else:
             # there are child cases, we use child cases instead
@@ -134,6 +171,7 @@ class IgnoreTestResultsPlugin:
                 return 'failed', 'F', 'FAILED CHILD CASES'
 
             if ignored_child_cases:
+                self._record_ignored_junit_address(report.nodeid)
                 return 'ignored', 'I', 'IGNORED CHILD CASES'
 
     def pytest_terminal_summary(self, terminalreporter: TerminalReporter) -> None:
