@@ -58,5 +58,6 @@ def pytest_configure(config: pytest.Config) -> None:
 def pytest_unconfigure(config: pytest.Config) -> None:
     plugin = config.stash.get(ignore_result_key, None)
     if plugin:
+        plugin.mark_ignored_results_in_junit()
         del config.stash[ignore_result_key]
         config.pluginmanager.unregister(plugin)
