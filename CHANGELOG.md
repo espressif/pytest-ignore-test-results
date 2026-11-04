@@ -1,3 +1,9 @@
+## v0.4.0 (2026-11-04)
+
+### Feat
+
+- mark ignored failures in JUnit reports
+
 ## v0.3.1 (2026-06-19)
 
 ## v0.3.0 (2025-02-03)
