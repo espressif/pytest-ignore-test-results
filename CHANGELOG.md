@@ -1,3 +1,9 @@
+## v0.5.0 (2026-11-26)
+
+### Feat
+
+- support optional pytest-embedded Unity cases
+
 ## v0.4.0 (2026-11-04)
 
 ### Feat

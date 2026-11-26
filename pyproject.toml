@@ -52,11 +52,13 @@ pytest_ignore_test_results = "pytest_ignore_test_results.plugin"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.4.0"
+version = "0.5.0"
 tag_format = "v$version"
 version_files = [
     "pytest_ignore_test_results/__init__.py",
 ]
+annotated_tag = true
+update_changelog_on_bump = true
 
 [tool.isort]
 profile = 'black'
