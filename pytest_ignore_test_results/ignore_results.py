@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2023-2025 Espressif Systems (Shanghai) CO LTD
+# SPDX-FileCopyrightText: 2023-2026 Espressif Systems (Shanghai) CO LTD
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import typing as t
@@ -22,6 +22,13 @@ from .utils import (
     ExitCode,
     parse_ignore_results_files,
 )
+
+try:
+    from pytest_embedded.unity import UnityCasesStashKey
+except ImportError as e:
+    if e.name not in ('pytest_embedded', 'pytest_embedded.unity'):
+        raise
+    UnityCasesStashKey = None
 
 if t.TYPE_CHECKING:
     from typing import (
@@ -124,6 +131,11 @@ class IgnoreTestResultsPlugin:
         outcome = yield
         rep = outcome.get_result()
         rep.custom_test_case_name = self.config.hook.pytest_custom_test_case_name(item=item) or item.nodeid
+        if rep.when == 'call':
+            child_cases = self.config.stash[ChildCasesStashKey].get(item.nodeid)
+            if not child_cases and UnityCasesStashKey is not None:
+                child_cases = item.stash.get(UnityCasesStashKey, ())
+            rep.ignore_result_child_cases = [(case.name, case.result) for case in child_cases or ()]
 
     def pytest_report_teststatus(self, report: pytest.TestReport) -> t.Optional[t.Tuple[str, str, str]]:
         """
@@ -146,7 +158,7 @@ class IgnoreTestResultsPlugin:
                 self._record_ignored_junit_address(report.nodeid)
             return
 
-        child_cases = self.config.stash[ChildCasesStashKey].get(report.nodeid, [])
+        child_cases = [ChildCase(name, result) for name, result in getattr(report, 'ignore_result_child_cases', ())]
         if not child_cases:
             # no child cases, we use the test case itself
             self._failed_test_cases[main_case_name] = main_case_ignored

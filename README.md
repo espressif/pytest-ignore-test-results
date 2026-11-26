@@ -47,6 +47,13 @@ test_feature_*
 test_integration_suite::test_case_1
 ```
 
+### Child Test Cases
+
+Failed child cases can be ignored by their names with `--ignore-result-cases` or `--ignore-result-files`.
+When pytest-embedded provides Unity cases, their names are used for matching; ignoring the parent test
+also ignores its failed children. If both the legacy child-case stash and Unity cases exist for one test,
+the legacy cases take precedence. pytest-embedded is optional.
+
 ### Control Exit Codes
 
 The plugin provides fine-grained control over exit codes through two options:
